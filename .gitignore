@@ -1,0 +1,9 @@
+﻿# Temp / OS
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
