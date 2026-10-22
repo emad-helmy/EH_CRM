@@ -1,7 +1,7 @@
 <?php
 /*
  =============================================================================
-  usersc/ceo_control.php — لوحة تحكم المشرف
+  usersc/eh_ceo_control.php — لوحة تحكم المشرف
  -----------------------------------------------------------------------------
   - إنشاء مستخدم جديد (البرمشنات checkboxes — كلها ما عدا 1 و 2)
   - تعديل مستخدم قديم (الاسم/الإيميل/كلمة السر/البرمشنات/الصورة)
@@ -22,6 +22,15 @@ if (!securePage(Server::get('PHP_SELF'))) {
 }
 
 $db = DB::getInstance();
+
+/* CRM plugin — helpers (crm_is_supervisor etc.) */
+require_once $abs_us_root . $us_url_root . 'usersc/plugins/eh_crm/lib/crm_func.php';
+
+/* فقط CRM Supervisor (أو الأدمن) يدخل */
+if (!crm_is_admin() && !crm_is_supervisor()) {
+    Redirect::to($us_url_root . 'usersc/eh_no_access.php');
+    die();
+}
 
 /* =============================================================================
  * دوال الصفحة (كلها خاصة بالصفحة — مفيش منطق صلاحيات هنا)
@@ -424,9 +433,12 @@ if (ceo_is_ajax()) {
  * ============================================================================= */
 require_once $abs_us_root . $us_url_root . 'users/includes/template/prep.php';
 
-/* البرمشنات المتاحة — كلها ما عدا 1 (User) و 2 (Administrator) */
+/* البرمشنات المتاحة — فقط الـ4 برمشنات الخاصة بـCRM (بأي رقم) */
+$crmPermNames = [CRM_PERM_ENTRY_NAME, CRM_PERM_SALES_NAME, CRM_PERM_MGR_NAME, CRM_PERM_SUPERVISOR_NAME];
+$placeholders = implode(',', array_fill(0, count($crmPermNames), '?'));
 $permissionOptions = $db->query(
-    "SELECT id, name, descrip FROM permissions WHERE id NOT IN (1, 2) ORDER BY id ASC"
+    "SELECT id, name, descrip FROM permissions WHERE name IN ($placeholders) ORDER BY id ASC",
+    $crmPermNames
 )->results();
 
 /* كل المستخدمين ما عدا اللي عندهم برمشن 2 (Administrator) */
@@ -701,7 +713,7 @@ $csrf = Token::generate();
 
 <script nonce="<?= htmlspecialchars($userspice_nonce ?? '') ?>">
   var ceoDir = (String(document.documentElement.lang || 'en').toLowerCase().split(/[-_]/)[0] === 'ar') ? 'rtl' : 'ltr';
-  var ceoUrl = '<?= $us_url_root ?>usersc/ceo_control.php';
+  var ceoUrl = '<?= $us_url_root ?>usersc/eh_ceo_control.php';
 
   function ceoSwal(icon, title, text) {
     Swal.fire({

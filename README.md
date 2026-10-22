@@ -8,7 +8,7 @@ CRM for a real-estate marketing company.
 usersc/plugins/eh_crm/
 ├── info.xml
 ├── functions.php        (auto-loaded; defines CRM_PLUGIN_DIR, deploys pages, loads lang)
-├── activate.php / install.php / migrate.php / update.php / uninstall.php / configure.php
+├── activate.php / install.php / migrate.php / update.php / uninstall.php / eh_configure.php
 ├── footer.php
 ├── assets/
 │   ├── pages/           (13 pages — deployed to usersc/ on install)

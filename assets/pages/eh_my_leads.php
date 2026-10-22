@@ -157,7 +157,7 @@ window.CRM_CALL_RESULTS = <?= json_encode($crmCallResults, JSON_UNESCAPED_UNICOD
                         : '<span class="text-muted">—</span>') + '</td>' +
                     '<td class="text-nowrap">' +
                         '<a class="btn btn-xs btn-outline-secondary" ' +
-                        'href="<?= $us_url_root ?>usersc/lead_view.php?lead=' + l.id + '" title="<?= lang('CRM_LEADS_CARD_TITLE') ?>">' +
+                        'href="<?= $us_url_root ?>usersc/eh_lead_view.php?lead=' + l.id + '" title="<?= lang('CRM_LEADS_CARD_TITLE') ?>">' +
                         '<i class="fas fa-eye"></i></a> ' +
                         (canCall
                             ? '<button class="btn btn-xs btn-outline-primary call-btn" data-id="' + l.id + '" ' +

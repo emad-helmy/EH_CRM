@@ -1,7 +1,7 @@
 ﻿<?php
 /*
 =============================================================================
- usersc/index.php — الصفحة الرئيسية للمشروع (الداشبورد)
+ usersc/eh_index.php — الصفحة الرئيسية للمشروع (الداشبورد)
 -----------------------------------------------------------------------------
  صفحة مشروع عادية في UserSpice بالظبط:
    init  →  prep (الهيدر + القايمة الجانبية)  →  securePage (تسجيل الدخول
@@ -146,15 +146,15 @@ $crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف
                     <?php
                     // كل لينك بيظهر بس لو الصلاحية بتسمح بفتح الصفحة (نفس منطق securePage)
                     $crm_quick = [
-                        ['usersc/lead_import.php', 'fas fa-file-csv',      lang('CRM_NAV_IMPORT'), 'btn-outline-primary'],
-                        ['usersc/lead_add.php',    'fas fa-user-plus',     lang('CRM_NAV_ADD'),        'btn-outline-primary'],
-                        ['usersc/batches.php',     'fas fa-layer-group',  lang('CRM_NAV_BATCHES'),     'btn-outline-primary'],
-                        ['usersc/my_leads.php',    'fas fa-phone-volume', lang('CRM_NAV_MY_LEADS'),            'btn-outline-success'],
-                        ['usersc/my_calls.php',    'fas fa-clipboard-list',lang('CRM_NAV_MY_CALLS'),      'btn-outline-success'],
-                        ['usersc/leads.php',       'fas fa-users',        lang('CRM_LEADS_TITLE'),        'btn-outline-primary'],
-                        ['usersc/distribute.php',  'fas fa-shuffle',      lang('CRM_NAV_DISTRIBUTE'),   'btn-outline-primary'],
-                        ['usersc/reports.php',     'fas fa-chart-line',   lang('CRM_NAV_REPORTS'),          'btn-outline-primary'],
-                        ['usersc/settings.php',    'fas fa-sliders',      lang('CRM_NAV_SETTINGS'),       'btn-outline-secondary'],
+                        ['usersc/eh_lead_import.php', 'fas fa-file-csv',      lang('CRM_NAV_IMPORT'), 'btn-outline-primary'],
+                        ['usersc/eh_lead_add.php',    'fas fa-user-plus',     lang('CRM_NAV_ADD'),        'btn-outline-primary'],
+                        ['usersc/eh_batches.php',     'fas fa-layer-group',  lang('CRM_NAV_BATCHES'),     'btn-outline-primary'],
+                        ['usersc/eh_my_leads.php',    'fas fa-phone-volume', lang('CRM_NAV_MY_LEADS'),            'btn-outline-success'],
+                        ['usersc/eh_my_calls.php',    'fas fa-clipboard-list',lang('CRM_NAV_MY_CALLS'),      'btn-outline-success'],
+                        ['usersc/eh_leads.php',       'fas fa-users',        lang('CRM_LEADS_TITLE'),        'btn-outline-primary'],
+                        ['usersc/eh_distribute.php',  'fas fa-shuffle',      lang('CRM_NAV_DISTRIBUTE'),   'btn-outline-primary'],
+                        ['usersc/eh_reports.php',     'fas fa-chart-line',   lang('CRM_NAV_REPORTS'),          'btn-outline-primary'],
+                        ['usersc/eh_settings.php',    'fas fa-sliders',      lang('CRM_NAV_SETTINGS'),       'btn-outline-secondary'],
                     ];
                     $crm_shown = 0;
                     foreach ($crm_quick as [$crm_pg, $crm_ic, $crm_lb, $crm_cl]) {
@@ -162,7 +162,7 @@ $crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف
                             continue;
                         }
                         $crm_shown++;
-                        if ($crm_pg === 'usersc/lead_add.php') {
+                        if ($crm_pg === 'usersc/eh_lead_add.php') {
                             // الإضافة بقت موديل من نفس الرئيسية
                             ?>
                             <button type="button" class="btn <?= $crm_cl ?>" data-bs-toggle="modal" data-bs-target="#mdlAddLead">
@@ -188,7 +188,7 @@ $crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف
         </div>
     </div>
 
-    <?php if (crm_can_page('usersc/lead_add.php')) { ?>
+    <?php if (crm_can_page('usersc/eh_lead_add.php')) { ?>
     <!-- ===================== موديل إضافة عميل (من الرئيسية) ===================== -->
     <div class="modal fade" id="mdlAddLead" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

@@ -50,7 +50,7 @@ require_once $abs_us_root . $us_url_root . 'usersc/plugins/eh_crm/lib/crm_func.p
                     <button class="btn btn-success w-100" id="btnSave"><?= lang('CRM_ADD_SAVE') ?></button>
                 </form>
                 <div class="mt-3" id="leadResult"></div>
-                <a class="btn btn-outline-secondary mt-2" href="<?= $us_url_root ?>usersc/index.php"><?= lang('CRM_ADD_BACK_HOME') ?></a>
+                <a class="btn btn-outline-secondary mt-2" href="<?= $us_url_root ?>usersc/eh_index.php"><?= lang('CRM_ADD_BACK_HOME') ?></a>
             </div>
         </div>
     </div>

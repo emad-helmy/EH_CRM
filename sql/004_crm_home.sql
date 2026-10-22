@@ -4,9 +4,9 @@
 --  شغّله بعد 001 + 002 (+ 003 لو شغّلته). شغّله بعد ما ترفع الملفات.
 --
 --  بيعمل إيه:
---    1) يسجّل الصفحة الرئيسية usersc/index.php (private = 1) ويربطها بـ
+--    1) يسجّل الصفحة الرئيسية usersc/eh_index.php (private = 1) ويربطها بـ
 --       User + Administrator + أي صلاحية عندها أي صفحة من صفحات المشروع.
---    2) يسجّل usersc/no_access.php كصفحة عامة (private = 0) — دي اللي
+--    2) يسجّل usersc/eh_no_access.php كصفحة عامة (private = 0) — دي اللي
 --       securePage() بترجّع عليها لما اليوزر مايكونش عنده صلاحية.
 --    3) ينقل صفحات المشروع من usersc/crm/*.php إلى usersc/*.php
 --       (بنفس العنوان والصلاحيات) ويحدّث لينكات القائمة.
@@ -26,14 +26,14 @@ SET NAMES utf8mb4;
 -- 1) الصفحة الرئيسية + صفحة "مفيش صلاحيات"
 -- =============================================================================
 INSERT INTO `pages` (`page`, `title`, `private`, `re_auth`, `core`, `lang_key`)
-SELECT 'usersc/index.php', 'الرئيسية', 1, 0, 0, NULL
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `pages` WHERE `page` = 'usersc/index.php');
+SELECT 'usersc/eh_index.php', 'الرئيسية', 1, 0, 0, NULL
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `pages` WHERE `page` = 'usersc/eh_index.php');
 
 INSERT INTO `pages` (`page`, `title`, `private`, `re_auth`, `core`, `lang_key`)
-SELECT 'usersc/no_access.php', 'مفيش صلاحيات', 0, 0, 0, NULL
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `pages` WHERE `page` = 'usersc/no_access.php');
+SELECT 'usersc/eh_no_access.php', 'مفيش صلاحيات', 0, 0, 0, NULL
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `pages` WHERE `page` = 'usersc/eh_no_access.php');
 
-SET @pg_home := (SELECT `id` FROM `pages` WHERE `page` = 'usersc/index.php' LIMIT 1);
+SET @pg_home := (SELECT `id` FROM `pages` WHERE `page` = 'usersc/eh_index.php' LIMIT 1);
 
 -- User (1) + Administrator (2) + أي صلاحية عندها أي صفحة من صفحات المشروع
 INSERT INTO `permission_page_matches` (`permission_id`, `page_id`)
@@ -65,16 +65,16 @@ CREATE TEMPORARY TABLE IF NOT EXISTS `eh_crm_page_move` (
 
 DELETE FROM `eh_crm_page_move`;
 INSERT INTO `eh_crm_page_move` (`oldp`, `newp`) VALUES
-  ('usersc/crm/lead_import.php', 'usersc/lead_import.php'),
-  ('usersc/crm/lead_add.php',    'usersc/lead_add.php'),
-  ('usersc/crm/batches.php',     'usersc/batches.php'),
-  ('usersc/crm/leads.php',       'usersc/leads.php'),
-  ('usersc/crm/lead_view.php',   'usersc/lead_view.php'),
-  ('usersc/crm/my_leads.php',    'usersc/my_leads.php'),
-  ('usersc/crm/my_calls.php',    'usersc/my_calls.php'),
-  ('usersc/crm/distribute.php',  'usersc/distribute.php'),
-  ('usersc/crm/reports.php',     'usersc/reports.php'),
-  ('usersc/crm/settings.php',    'usersc/settings.php');
+  ('usersc/crm/lead_import.php', 'usersc/eh_lead_import.php'),
+  ('usersc/crm/lead_add.php',    'usersc/eh_lead_add.php'),
+  ('usersc/crm/batches.php',     'usersc/eh_batches.php'),
+  ('usersc/crm/leads.php',       'usersc/eh_leads.php'),
+  ('usersc/crm/lead_view.php',   'usersc/eh_lead_view.php'),
+  ('usersc/crm/my_leads.php',    'usersc/eh_my_leads.php'),
+  ('usersc/crm/my_calls.php',    'usersc/eh_my_calls.php'),
+  ('usersc/crm/distribute.php',  'usersc/eh_distribute.php'),
+  ('usersc/crm/reports.php',     'usersc/eh_reports.php'),
+  ('usersc/crm/settings.php',    'usersc/eh_settings.php');
 
 -- 2أ) الصفحات الجديدة (بنفس العنوان والخصوصية)
 INSERT INTO `pages` (`page`, `title`, `private`, `re_auth`, `core`, `lang_key`)
@@ -110,7 +110,7 @@ UPDATE `us_menu_items` i JOIN `eh_crm_page_move` m ON i.`link` = m.`oldp`
 -- 3) أننا نحول الداشبورد القديم للرئيسية الجديدة
 -- =============================================================================
 UPDATE `us_menu_items`
-   SET `link` = 'usersc/index.php', `label` = 'CRM_MENU_HOME'
+   SET `link` = 'usersc/eh_index.php', `label` = 'CRM_MENU_HOME'
  WHERE `link` = 'usersc/crm/dashboard.php';
 
 DELETE m FROM `permission_page_matches` m
@@ -141,43 +141,43 @@ UPDATE `us_menu_items`
 --    (لو مش عايز عنصر يظهر لدور معيّن، شيل رقم البرمشن من المصفوفة دي)
 -- =============================================================================
 UPDATE `us_menu_items` SET `permissions` = '[2,3]'
- WHERE `menu` = 1 AND `link` IN ('usersc/lead_import.php', 'usersc/batches.php');
+ WHERE `menu` = 1 AND `link` IN ('usersc/eh_lead_import.php', 'usersc/eh_batches.php');
 
 UPDATE `us_menu_items` SET `permissions` = '[2,4]'
- WHERE `menu` = 1 AND `link` IN ('usersc/my_leads.php', 'usersc/my_calls.php');
+ WHERE `menu` = 1 AND `link` IN ('usersc/eh_my_leads.php', 'usersc/eh_my_calls.php');
 
 UPDATE `us_menu_items` SET `permissions` = '[2,5]'
- WHERE `menu` = 1 AND `link` IN ('usersc/leads.php', 'usersc/distribute.php',
-                                 'usersc/reports.php', 'usersc/settings.php');
+ WHERE `menu` = 1 AND `link` IN ('usersc/eh_leads.php', 'usersc/eh_distribute.php',
+                                 'usersc/eh_reports.php', 'usersc/eh_settings.php');
 
 UPDATE `us_menu_items` SET `permissions` = '[2,3,4,5]'
- WHERE `menu` = 1 AND `link` = 'usersc/index.php';
+ WHERE `menu` = 1 AND `link` = 'usersc/eh_index.php';
 
 -- دور المشرف (003) لو موجود → يتضاف للمنيو زي المدير
 SET @p_sup := COALESCE((SELECT `id` FROM `permissions` WHERE `name` = 'CRM Supervisor' LIMIT 1), 0);
 
 UPDATE `us_menu_items`
    SET `permissions` = CONCAT('[2,3,4,5,', @p_sup, ']')
- WHERE `menu` = 1 AND `link` = 'usersc/index.php' AND @p_sup > 0;
+ WHERE `menu` = 1 AND `link` = 'usersc/eh_index.php' AND @p_sup > 0;
 
 UPDATE `us_menu_items`
    SET `permissions` = CONCAT('[2,5,', @p_sup, ']')
  WHERE `menu` = 1
-   AND `link` IN ('usersc/leads.php', 'usersc/distribute.php', 'usersc/reports.php')
+   AND `link` IN ('usersc/eh_leads.php', 'usersc/eh_distribute.php', 'usersc/eh_reports.php')
    AND @p_sup > 0;
 
 -- =============================================================================
 -- 6) عناوين صفحات المشروع (pages.title = المصدر الرسمي للعنوان)
 -- =============================================================================
-UPDATE `pages` SET `title` = 'إدخال عملاء (CSV)' WHERE `page` IN ('usersc/lead_import.php', 'usersc/crm/lead_import.php');
-UPDATE `pages` SET `title` = 'إضافة عميل'        WHERE `page` IN ('usersc/lead_add.php',    'usersc/crm/lead_add.php');
-UPDATE `pages` SET `title` = 'دفعات الإدخال'     WHERE `page` IN ('usersc/batches.php',     'usersc/crm/batches.php');
-UPDATE `pages` SET `title` = 'كل العملاء'        WHERE `page` IN ('usersc/leads.php',       'usersc/crm/leads.php');
-UPDATE `pages` SET `title` = 'بيانات العميل'     WHERE `page` IN ('usersc/lead_view.php',   'usersc/crm/lead_view.php');
-UPDATE `pages` SET `title` = 'عملائي'            WHERE `page` IN ('usersc/my_leads.php',    'usersc/crm/my_leads.php');
-UPDATE `pages` SET `title` = 'سجل مكالماتي'      WHERE `page` IN ('usersc/my_calls.php',    'usersc/crm/my_calls.php');
-UPDATE `pages` SET `title` = 'التوزيع / النقل'   WHERE `page` IN ('usersc/distribute.php',  'usersc/crm/distribute.php');
-UPDATE `pages` SET `title` = 'التقارير'          WHERE `page` IN ('usersc/reports.php',     'usersc/crm/reports.php');
-UPDATE `pages` SET `title` = 'إعدادات CRM'       WHERE `page` IN ('usersc/settings.php',    'usersc/crm/settings.php');
+UPDATE `pages` SET `title` = 'إدخال عملاء (CSV)' WHERE `page` IN ('usersc/eh_lead_import.php', 'usersc/crm/lead_import.php');
+UPDATE `pages` SET `title` = 'إضافة عميل'        WHERE `page` IN ('usersc/eh_lead_add.php',    'usersc/crm/lead_add.php');
+UPDATE `pages` SET `title` = 'دفعات الإدخال'     WHERE `page` IN ('usersc/eh_batches.php',     'usersc/crm/batches.php');
+UPDATE `pages` SET `title` = 'كل العملاء'        WHERE `page` IN ('usersc/eh_leads.php',       'usersc/crm/leads.php');
+UPDATE `pages` SET `title` = 'بيانات العميل'     WHERE `page` IN ('usersc/eh_lead_view.php',   'usersc/crm/lead_view.php');
+UPDATE `pages` SET `title` = 'عملائي'            WHERE `page` IN ('usersc/eh_my_leads.php',    'usersc/crm/my_leads.php');
+UPDATE `pages` SET `title` = 'سجل مكالماتي'      WHERE `page` IN ('usersc/eh_my_calls.php',    'usersc/crm/my_calls.php');
+UPDATE `pages` SET `title` = 'التوزيع / النقل'   WHERE `page` IN ('usersc/eh_distribute.php',  'usersc/crm/distribute.php');
+UPDATE `pages` SET `title` = 'التقارير'          WHERE `page` IN ('usersc/eh_reports.php',     'usersc/crm/reports.php');
+UPDATE `pages` SET `title` = 'إعدادات CRM'       WHERE `page` IN ('usersc/eh_settings.php',    'usersc/crm/settings.php');
 
 DROP TEMPORARY TABLE IF EXISTS `eh_crm_page_move`;

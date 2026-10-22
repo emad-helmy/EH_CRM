@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * CRM plugin — functions.php (auto-loaded by UserSpice when active)
  */
@@ -12,9 +12,9 @@ if (!function_exists('crm_deploy_pages')) {
     {
         $src = CRM_PLUGIN_DIR . '/assets/pages';
         $dst = dirname(CRM_PLUGIN_DIR, 2); // .../usersc
-        foreach (['index.php','leads.php','lead_add.php','lead_view.php','lead_import.php',
-                  'batches.php','distribute.php','my_leads.php','my_calls.php','reports.php',
-                  'settings.php','no_access.php','ceo_control.php'] as $f) {
+        foreach (['eh_index.php','eh_leads.php','eh_lead_add.php','eh_lead_view.php','eh_lead_import.php',
+                  'eh_batches.php','eh_distribute.php','eh_my_leads.php','eh_my_calls.php','eh_reports.php',
+                  'eh_settings.php','eh_no_access.php','eh_ceo_control.php','eh_configure.php'] as $f) {
             $from = "$src/$f";
             $to   = "$dst/$f";
             if (file_exists($from) && (!file_exists($to) || filemtime($from) > filemtime($to))) {

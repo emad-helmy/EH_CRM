@@ -1,7 +1,7 @@
 ﻿<?php
 /*
  =============================================================================
- usersc/leads.php — كل العملاء (للمدير): جدول كامل + فلاتر
+ usersc/eh_leads.php — كل العملاء (للمدير): جدول كامل + فلاتر
  -----------------------------------------------------------------------------
   الحالة / المصدر / المشروع / الموظف / تاريخ الإدخال / بحث
   الجدول بـDataTables (فرز + بحث سريع + ترقيم الصفحات).
@@ -216,7 +216,7 @@ require_once $abs_us_root . $us_url_root . 'usersc/plugins/eh_crm/lib/crm_func.p
                     l.next_followup_at
                         ? '<span class="badge bg-warning text-dark">' + crm.dt(l.next_followup_at) + '</span>'
                         : '<span class="text-muted">—</span>',
-                    '<a class="btn btn-xs btn-outline-info" href="<?= $us_url_root ?>usersc/lead_view.php?lead=' +
+                    '<a class="btn btn-xs btn-outline-info" href="<?= $us_url_root ?>usersc/eh_lead_view.php?lead=' +
                         l.id + '" title="<?= lang('CRM_LEADS_CARD_TITLE') ?>"><i class="fas fa-eye"></i> <?= lang('CRM_LEADS_VIEW') ?></a>'
                 ];
             });

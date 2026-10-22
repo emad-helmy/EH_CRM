@@ -12,6 +12,7 @@ if (!defined('CRM_PERM_ENTRY_NAME')) {
     define('CRM_PERM_ENTRY_NAME', 'CRM Data Entry');     // مدخل البيانات
     define('CRM_PERM_SALES_NAME', 'CRM Sales');          // مبيعات
     define('CRM_PERM_MGR_NAME', 'CRM Sales Manager');    // مدير مبيعات
+    define('CRM_PERM_SUPERVISOR_NAME', 'CRM Supervisor'); // مشرف
     define('CRM_ADMIN_PERM', 2);                         // Administrator
 }
 
@@ -46,10 +47,10 @@ function crm_perm_map()
 {
     static $map = null;
     if ($map === null) {
-        $map  = ['entry' => 0, 'sales' => 0, 'mgr' => 0];
+        $map  = ['entry' => 0, 'sales' => 0, 'mgr' => 0, 'supervisor' => 0];
         $rows = crm_db()->query(
-            "SELECT id, name FROM permissions WHERE name IN (?,?,?)",
-            [CRM_PERM_ENTRY_NAME, CRM_PERM_SALES_NAME, CRM_PERM_MGR_NAME]
+            "SELECT id, name FROM permissions WHERE name IN (?,?,?,?)",
+            [CRM_PERM_ENTRY_NAME, CRM_PERM_SALES_NAME, CRM_PERM_MGR_NAME, CRM_PERM_SUPERVISOR_NAME]
         )->results();
 
         foreach ($rows as $r) {
@@ -59,6 +60,8 @@ function crm_perm_map()
                 $map['sales'] = (int) $r->id;
             } elseif ($r->name === CRM_PERM_MGR_NAME) {
                 $map['mgr'] = (int) $r->id;
+            } elseif ($r->name === CRM_PERM_SUPERVISOR_NAME) {
+                $map['supervisor'] = (int) $r->id;
             }
         }
     }
@@ -81,7 +84,7 @@ function crm_perm_id($key)
  *   core = 1  → صفحات UserSpice الأصلية
  *   core = 0  → صفحات المشروع (اللي إحنا عملناها أو الأدمن ضافها)
  *
- * ملحوظة مهمة: الصفحة الرئيسية usersc/index.php مستثناة عن قصد — دي مفتوحة
+ * ملحوظة مهمة: الصفحة الرئيسية usersc/eh_index.php مستثناة عن قصد — دي مفتوحة
  * لأي يوزر مسجّل (برمشن User العادي)، فلو حسبناها كانت أي صلاحية عادية هتبقى
  * "دور" وهي مش كده.
  */
@@ -96,7 +99,7 @@ function crm_page_perm_ids()
                JOIN pages p ON p.id = m.page_id
               WHERE p.core = 0
                 AND p.page NOT LIKE 'users/%'
-                AND p.page <> 'usersc/index.php'"
+                AND p.page <> 'usersc/eh_index.php'"
         )->results();
         foreach ($rows as $r) {
             if ((int) $r->pid > 0) {
@@ -180,6 +183,11 @@ function crm_is_sales_manager($userId = null)
     return crm_is_admin($userId) || crm_is_role('mgr', $userId);
 }
 
+function crm_is_supervisor($userId = null)
+{
+    return crm_is_admin($userId) || crm_is_role('supervisor', $userId);
+}
+
 /**
  * هل اليوزر عنده أي صلاحية على الـ CRM؟
  * مبنية على permission_page_matches (نفس مصدر securePage) — يعني مش
@@ -200,7 +208,7 @@ function crm_has_any_role($userId = null)
 /**
  * هل اليوزر يقدر يفتح صفحة المشروع دي؟ (نفس منطق securePage بالظبط)
  * بنستخدمها عشان نخبّي لينكات الصفحات اللي اليوزر مش مسموح له بيها.
- *   $pagePath = 'usersc/settings.php'
+ *   $pagePath = 'usersc/eh_settings.php'
  */
 function crm_can_page($pagePath, $userId = null)
 {
@@ -309,7 +317,7 @@ function crm_home_url($userId = null)
 {
     global $us_url_root;
 
-    return crm_has_any_role($userId) ? $us_url_root . 'usersc/index.php' : $us_url_root;
+    return crm_has_any_role($userId) ? $us_url_root . 'usersc/eh_index.php' : $us_url_root;
 }
 
 /* ------------------------------------------------------------------ */

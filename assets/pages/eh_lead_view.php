@@ -1,7 +1,7 @@
 ﻿<?php
 /*
  =============================================================================
- usersc/lead_view.php — كارت العميل: بياناته + سجل مكالماته + (تسجيل مكالمة / نقل)
+ usersc/eh_lead_view.php — كارت العميل: بياناته + سجل مكالماته + (تسجيل مكالمة / نقل)
  -----------------------------------------------------------------------------
   الفتح من: كل العملاء / عملائي  →  lead_view.php?lead=ID
   البيانات بتيجي من lead_card (sales يشوف عملائه بس — المدير يشوف الكل).
@@ -26,7 +26,7 @@ $canTransfer = crm_is_sales_manager();   // النقل لمدير/مشرف/أد�
 
     <div class="alert alert-danger">
         <?= lang('CRM_CARD_BAD_ID') ?>
-        <a class="alert-link" href="<?= $us_url_root ?>usersc/leads.php"><?= lang('CRM_CARD_BACK_LEADS') ?></a>
+        <a class="alert-link" href="<?= $us_url_root ?>usersc/eh_leads.php"><?= lang('CRM_CARD_BACK_LEADS') ?></a>
     </div>
 
 <?php else: ?>
@@ -42,13 +42,13 @@ $canTransfer = crm_is_sales_manager();   // النقل لمدير/مشرف/أد�
                         <span class="text-muted fw-normal" id="lvTitle"></span>
                     </h3>
                     <div class="d-flex gap-2 flex-wrap">
-                        <?php if (crm_can_page('usersc/leads.php')) { ?>
-                            <a class="btn btn-sm btn-outline-primary" href="<?= $us_url_root ?>usersc/leads.php">
+                        <?php if (crm_can_page('usersc/eh_leads.php')) { ?>
+                            <a class="btn btn-sm btn-outline-primary" href="<?= $us_url_root ?>usersc/eh_leads.php">
                                 <i class="fas fa-users"></i><?= lang('CRM_LEADS_TITLE') ?>
                             </a>
                         <?php } ?>
-                        <?php if (crm_can_page('usersc/my_leads.php')) { ?>
-                            <a class="btn btn-sm btn-outline-success" href="<?= $us_url_root ?>usersc/my_leads.php">
+                        <?php if (crm_can_page('usersc/eh_my_leads.php')) { ?>
+                            <a class="btn btn-sm btn-outline-success" href="<?= $us_url_root ?>usersc/eh_my_leads.php">
                                 <i class="fas fa-phone-volume"></i><?= lang('CRM_NAV_MY_LEADS') ?>
                             </a>
                         <?php } ?>
@@ -196,7 +196,7 @@ $canTransfer = crm_is_sales_manager();   // النقل لمدير/مشرف/أد�
         }, function () {
             $('#leadCardWrap').html(
                 '<div class="alert alert-danger"><?= lang('CRM_CARD_NO_ACCESS') ?>' +
-                '<a class="alert-link" href="<?= $us_url_root ?>usersc/index.php"><?= lang('CRM_CARD_BACK_HOME') ?></a></div>'
+                '<a class="alert-link" href="<?= $us_url_root ?>usersc/eh_index.php"><?= lang('CRM_CARD_BACK_HOME') ?></a></div>'
             );
         });
     }

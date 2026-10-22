@@ -33,11 +33,11 @@ INSERT INTO `permission_page_matches` (`permission_id`, `page_id`)
 SELECT @p_sup, p.`id`
 FROM `pages` p
 WHERE p.`page` IN (
-            'usersc/index.php',
-            'usersc/leads.php',
-            'usersc/lead_view.php',
-            'usersc/distribute.php',
-            'usersc/reports.php'
+            'usersc/eh_index.php',
+            'usersc/eh_leads.php',
+            'usersc/eh_lead_view.php',
+            'usersc/eh_distribute.php',
+            'usersc/eh_reports.php'
       )
   AND NOT EXISTS (
             SELECT 1 FROM `permission_page_matches` m
@@ -52,16 +52,16 @@ SET `permissions` = CONCAT('[2,5,', @p_sup, ']')
 WHERE `menu` = 1
   AND `permissions` = '[2,5]'
   AND `link` IN (
-            'usersc/leads.php',
-            'usersc/distribute.php',
-            'usersc/reports.php'
+            'usersc/eh_leads.php',
+            'usersc/eh_distribute.php',
+            'usersc/eh_reports.php'
       );
 
 UPDATE `us_menu_items`
 SET `permissions` = CONCAT('[2,3,4,5,', @p_sup, ']')
 WHERE `menu` = 1
   AND `permissions` = '[2,3,4,5]'
-  AND `link` = 'usersc/index.php';
+  AND `link` = 'usersc/eh_index.php';
 
 -- =============================================================================
 -- 4) مستوى مدير (يشوف كل العملاء)
