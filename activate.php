@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../../users/init.php';
 
 if (in_array($user->data()->id, $master_account)) {

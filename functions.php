@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * CRM plugin — functions.php (auto-loaded by UserSpice when active)
  */

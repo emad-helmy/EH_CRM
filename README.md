@@ -1,4 +1,4 @@
-﻿# EH_CRM
+# EH_CRM
 
 A CRM plugin for UserSpice — built for a real-estate marketing company.
 
