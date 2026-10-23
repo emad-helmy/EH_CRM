@@ -57,21 +57,6 @@ if (!function_exists('crm_load_lang')) {
     }
 }
 
-/* ---- sync ini ---- */
-if (!function_exists('crm_sync_ini')) {
-    function crm_sync_ini()
-    {
-        global $abs_us_root, $us_url_root;
-        $db = DB::getInstance();
-        $all = $db->query("SELECT plugin, status FROM us_plugins")->results();
-        $ini = [];
-        foreach ($all as $p) {
-            $ini[$p->plugin] = ($p->status === 'active') ? 1 : 2;
-        }
-        write_php_ini($ini, $abs_us_root . $us_url_root . 'usersc/plugins/plugins.ini.php');
-    }
-}
-
 /* ---- لغة البلجن: تثبيت/إزالة مفاتيح CRM_* في usersc/lang/*.php (مثل eh_chat) ---- */
 if (!function_exists('crm_lang_dst_dir')) {
     function crm_lang_dst_dir()

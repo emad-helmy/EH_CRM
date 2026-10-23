@@ -108,13 +108,10 @@ foreach ($items as $it) {
 /* ---------- 7) نشر الصفحات + endpoints + crm.js ---------- */
 crm_deploy_pages();
 
-/* ---------- 8) زامنة الـini ---------- */
-crm_sync_ini();
-
-/* ---------- 9) تفعيل البلجن ---------- */
+/* ---------- 8) تفعيل البلجن ---------- */
 $db->update('us_plugins', ['status' => 'active'], ['plugin' => $plugin_name]);
 
-/* ---------- 10) تسجيل الدخول ---------- */
+/* ---------- 9) تسجيل الدخول ---------- */
 logger($user->data()->id, "USPlugins", "$plugin_name Installed");
 err("$plugin_name installed successfully — plugin activated.");
 Redirect::to($us_url_root . 'users/admin.php?view=plugins');

@@ -13,7 +13,6 @@ if (in_array($user->data()->id, $master_account)) {
         if (!$db->error()) {
             err($plugin_name . ' activated');
             logger($user->data()->id, "USPlugins", $plugin_name . " Activated");
-            crm_sync_ini();
             crm_deploy_pages();
         } else {
             err($plugin_name . ' was not activated');

@@ -42,7 +42,6 @@ if (is_file($jsPath)) { @unlink($jsPath); }
 
 /* 4) شيل البلجن من us_plugins */
 $db->query("DELETE FROM us_plugins WHERE plugin = 'eh_crm'");
-crm_sync_ini();
 
 err('CRM uninstalled (tables remain — drop manually if needed)');
 Redirect::to($us_url_root . 'users/admin.php?view=plugins');
