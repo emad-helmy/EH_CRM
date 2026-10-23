@@ -1,5 +1,5 @@
 <?php
-/* uninstall.php — يلغي تسجيل البلجن (الجداول تبقى يدويًا، المفاتيح والصفحات يتم تنظيفها) */
+/* uninstall.php — يلغي تسجيل البلجن (الجداول تبقى يدويًا) */
 require_once __DIR__ . '/../../../users/init.php';
 
 if (!in_array($user->data()->id, $master_account)) {
@@ -9,19 +9,14 @@ if (!in_array($user->data()->id, $master_account)) {
 
 require_once __DIR__ . '/functions.php';
 
-/* 1) شيل مفاتيح اللغة من usersc/lang/ */
-if (function_exists('crm_lang_uninstall_keys')) {
-    crm_lang_uninstall_keys();
-}
-
-/* 2) شيل عناصر المنيو */
+/* 1) شيل عناصر المنيو */
 $db = DB::getInstance();
 $menuCrm = $db->query("SELECT id FROM us_menu_items WHERE menu=1 AND type='dropdown' AND label='CRM' LIMIT 1")->first();
 if ($menuCrm) {
     $db->query("DELETE FROM us_menu_items WHERE menu=1 AND (id=? OR parent=?)", [(int)$menuCrm->id, (int)$menuCrm->id]);
 }
 
-/* 3) شيل الصفحات المنشورة من usersc/ */
+/* 2) شيل الصفحات المنشورة من usersc/ */
 $pages = [
     'eh_index.php','eh_leads.php','eh_lead_add.php','eh_lead_view.php','eh_lead_import.php',
     'eh_batches.php','eh_distribute.php','eh_my_leads.php','eh_my_calls.php','eh_reports.php',
@@ -40,7 +35,7 @@ foreach ($endpoints as $f) {
 $jsPath = $dst . '/assets/crm.js';
 if (is_file($jsPath)) { @unlink($jsPath); }
 
-/* 4) شيل البلجن من us_plugins */
+/* 3) شيل البلجن من us_plugins */
 $db->query("DELETE FROM us_plugins WHERE plugin = 'eh_crm'");
 
 err('CRM uninstalled (tables remain — drop manually if needed)');
