@@ -33,8 +33,6 @@ $sqlFiles = [
     '005_crm_lead_message.sql',
     '007_crm_ceo_control.sql',
     '008_crm_menu_i18n.sql',
-    '009_crm_rename_prefix.sql',
-    '010_crm_pages_rename.sql',
 ];
 foreach ($sqlFiles as $f) {
     $path = $sqlDir . '/' . $f;
