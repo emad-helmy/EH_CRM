@@ -72,5 +72,82 @@ if (!function_exists('crm_sync_ini')) {
     }
 }
 
+/* ---- لغة البلجن: تثبيت/إزالة مفاتيح CRM_* في usersc/lang/*.php (مثل eh_chat) ---- */
+if (!function_exists('crm_lang_dst_dir')) {
+    function crm_lang_dst_dir()
+    {
+        global $abs_us_root, $us_url_root;
+        $d = rtrim($abs_us_root . $us_url_root, '/\\') . '/usersc/lang/';
+        if (!is_dir($d)) { @mkdir($d, 0755, true); }
+        return $d;
+    }
+}
+
+if (!function_exists('crm_lang_marks')) {
+    function crm_lang_marks()
+    {
+        return ["/* ==== CRM LANG BEGIN ==== */", "/* ==== CRM LANG END ==== */"];
+    }
+}
+
+if (!function_exists('crm_lang_install_keys')) {
+    function crm_lang_install_keys()
+    {
+        $names = ['en-US.php' => 'English', 'ar-EG.php' => 'Arabic (EG)', 'ar-SA.php' => 'Arabic (SA)'];
+        $dir   = crm_lang_dst_dir();
+        list($MB, $ME) = crm_lang_marks();
+        $re    = '~' . preg_quote($MB, '~') . '(.*?)' . preg_quote($ME, '~') . '~s';
+
+        foreach ($names as $lg => $lgName) {
+            $src = CRM_PLUGIN_DIR . '/lang/' . $lg;
+            if (!is_file($src)) { continue; }
+            $srcTxt = (string) file_get_contents($src);
+            if (!preg_match('/array_merge\s*\(\s*\$lang\s*,\s*array\s*\((.*?)\)\s*\)\s*;/s', $srcTxt, $m)) { continue; }
+            $keys  = trim($m[1]);
+            $block = $MB . "\n\$lang = array_merge(\$lang,array(\n\n" . $keys . "\n\n));\n" . $ME . "\n";
+
+            $dst = $dir . $lg;
+            if (!is_file($dst)) {
+                @file_put_contents($dst, "<?php\n// CRM — {$lgName} strings (plugin)\n\n" . $block);
+                continue;
+            }
+
+            $cur = (string) file_get_contents($dst);
+            if (preg_match($re, $cur)) {
+                $cur = preg_replace($re, $block, $cur, 1);
+            } else {
+                $cur = preg_replace('/\?>\s*$/', '', $cur);
+                $cur = rtrim($cur, " \t\r\n") . "\n\n" . $block;
+            }
+            @file_put_contents($dst, $cur);
+        }
+    }
+}
+
+if (!function_exists('crm_lang_uninstall_keys')) {
+    function crm_lang_uninstall_keys()
+    {
+        $names = ['en-US.php', 'ar-EG.php', 'ar-SA.php'];
+        $dir   = crm_lang_dst_dir();
+        list($MB, $ME) = crm_lang_marks();
+        $re    = '~' . preg_quote($MB, '~') . '(.*?)' . preg_quote($ME, '~') . '~s';
+
+        foreach ($names as $lg) {
+            $dst = $dir . $lg;
+            if (!is_file($dst)) { continue; }
+            $cur = (string) file_get_contents($dst);
+
+            if (preg_match($re, $cur)) {
+                $cur = preg_replace($re, '', $cur, 1);
+                $cur = preg_replace('/[ \t]*\n[ \t]*\n[ \t]*\n/s', "\n\n", $cur);
+                $codeOnly = trim(preg_replace(['/^<\?php/', '/^\s*\/\/[^\n]*/m'], '', $cur));
+                if ($codeOnly === '') { @unlink($dst); continue; }
+                $cur = rtrim($cur, " \t\r\n") . "\n";
+            }
+            @file_put_contents($dst, $cur);
+        }
+    }
+}
+
 crm_deploy_pages();
 crm_load_lang();
