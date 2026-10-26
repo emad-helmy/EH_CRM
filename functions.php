@@ -8,16 +8,58 @@ define('CRM_PLUGIN_DIR', dirname(__FILE__));
 
 /* ---- نشر صفحات البلجن من files/ إلى usersc/ (نفس أسلوب البلجن الـdemo) ---- */
 if (!function_exists('crm_deploy_pages')) {
+    /**
+     * بينسخ files/*.php إلى usersc/ ويرجّع تقرير مفصّل:
+     * ['copied' => [], 'skipped' => [], 'failed' => []]
+     */
     function crm_deploy_pages()
     {
-        $src = CRM_PLUGIN_DIR . '/files';
+        $report = ['copied' => [], 'skipped' => [], 'failed' => []];
+        $src = str_replace('\\', '/', CRM_PLUGIN_DIR . '/files');
         $dst = dirname(CRM_PLUGIN_DIR, 2); // .../usersc
-        foreach (glob($src . '/*.php') ?: [] as $from) {
-            $to = $dst . '/' . basename($from);
-            if (!file_exists($to) || filemtime($from) > filemtime($to)) {
-                @copy($from, $to);
+
+        if (!is_dir($src)) {
+            $report['failed'][] = "مجلد files/ مش موجود: {$src} — اتأكد إن ملفات البلجن اترفعت كاملة";
+            return $report;
+        }
+        if (!is_dir($dst)) {
+            $report['failed'][] = "مجلد usersc مش موجود: {$dst}";
+            return $report;
+        }
+        if (!is_writable($dst)) {
+            $report['failed'][] = "مجلد usersc مش قابل للكتابة ({$dst}) — ظبط الصلاحيات (755) والـownership";
+            return $report;
+        }
+
+        $files = glob($src . '/*.php');
+        if (!is_array($files) || count($files) === 0) {
+            // fallback لو الـglob فشل
+            $files = [];
+            foreach (scandir($src) ?: [] as $f) {
+                if (substr($f, -4) === '.php') {
+                    $files[] = $src . '/' . $f;
+                }
             }
         }
+        if (empty($files)) {
+            $report['failed'][] = "مفيش صفحات PHP في files/";
+            return $report;
+        }
+
+        foreach ($files as $from) {
+            $to = $dst . '/' . basename($from);
+            clearstatcache(true, $to);
+            if (file_exists($to) && filemtime($from) <= filemtime($to)) {
+                $report['skipped'][] = basename($from);
+                continue;
+            }
+            if (@copy($from, $to)) {
+                $report['copied'][] = basename($from);
+            } else {
+                $report['failed'][] = basename($from) . ' → ' . $to . ' (copy فشلت — شوف صلاحيات المجلد)';
+            }
+        }
+        return $report;
     }
 }
 

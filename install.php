@@ -23,8 +23,11 @@ if ($checkQ->count() === 0) {
     $db->query("UPDATE `us_plugins` SET `status` = 'active' WHERE `plugin` = ?", [$plugin_name]);
 }
 
-/* ---------- 2) نشر الصفحات + endpoints + crm.js ---------- */
-crm_deploy_pages();
+/* ---------- 2) نشر الصفحات من files/ إلى usersc/ ---------- */
+$deployReport = crm_deploy_pages();
+foreach ($deployReport['copied'] as $f)  { err("Deployed: {$f}"); }
+foreach ($deployReport['skipped'] as $f) { err("Deploy skipped (up-to-date): {$f}"); }
+foreach ($deployReport['failed'] as $f)  { err("DEPLOY FAILED: {$f}"); }
 
 /* ---------- 3) دمج ملفات اللغة (lang/) ---------- */
 /*
@@ -91,3 +94,56 @@ if (!empty($langResults)) {
         err("Lang: " . $lr);
     }
 }
+?>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>EH CRM — Install</title>
+<style>
+  body { font-family: Tahoma, Arial, sans-serif; background:#f4f6f9; padding:24px; }
+  .box { background:#fff; border:1px solid #ddd; border-radius:8px; max-width:720px; margin:0 auto 16px; padding:16px 20px; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  ul { margin:8px 0; padding-right:20px; }
+  .ok { color:#1a7f37; } .warn { color:#9a6700; } .bad { color:#c62828; }
+  code { background:#eef; padding:1px 5px; border-radius:4px; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>EH CRM — تم التثبيت ✅</h1>
+    <p>الخطوات الجاية:</p>
+    <ul>
+      <li>شغّل <code>sql/database.sql</code> من phpMyAdmin (الجداول + تسجيل الصفحات).</li>
+      <li>فعّل البلجن من <code>Admin → Plugins</code>.</li>
+      <li>افتح صفحة الـConfigure: <b>انشاء الصلاحيات</b> ثم <b>انشاء القوائم</b>.</li>
+    </ul>
+  </div>
+
+  <div class="box">
+    <h1>تقرير نشر الصفحات (files/ → usersc/)</h1>
+    <?php if (!empty($deployReport['copied'])): ?>
+      <p class="ok"><b>اتنشرت (<?= count($deployReport['copied']) ?>):</b></p>
+      <ul><?php foreach ($deployReport['copied'] as $f) { echo '<li>' . htmlspecialchars($f) . '</li>'; } ?></ul>
+    <?php endif; ?>
+    <?php if (!empty($deployReport['skipped'])): ?>
+      <p class="warn"><b>موجودة ومحدّثة (<?= count($deployReport['skipped']) ?>):</b></p>
+      <ul><?php foreach ($deployReport['skipped'] as $f) { echo '<li>' . htmlspecialchars($f) . '</li>'; } ?></ul>
+    <?php endif; ?>
+    <?php if (!empty($deployReport['failed'])): ?>
+      <p class="bad"><b>فشل (<?= count($deployReport['failed']) ?>):</b></p>
+      <ul><?php foreach ($deployReport['failed'] as $f) { echo '<li>' . htmlspecialchars($f) . '</li>'; } ?></ul>
+    <?php endif; ?>
+    <?php if (empty($deployReport['failed'])): ?>
+      <p class="ok">كل الصفحات اتنشرت بنجاح.</p>
+    <?php endif; ?>
+  </div>
+
+  <?php if (!empty($langResults)): ?>
+  <div class="box">
+    <h1>تقرير ملفات اللغة</h1>
+    <ul><?php foreach ($langResults as $lr) { echo '<li>' . htmlspecialchars($lr) . '</li>'; } ?></ul>
+  </div>
+  <?php endif; ?>
+</body>
+</html>
