@@ -30,7 +30,12 @@ foreach ($deployReport['skipped'] as $f) { err("Deploy skipped (up-to-date): {$f
 foreach ($deployReport['failed'] as $f)  { err("DEPLOY FAILED: {$f}"); }
 foreach ($deployReport['missing'] as $f) { err("DEPLOY MISSING SOURCE: {$f}"); }
 
-/* ---------- 3) دمج ملفات اللغة (lang/) ---------- */
+/* ---------- 3) الجداول + تسجيل الصفحات في pages (sql/database.sql — idempotent، بيتشغل تلقائيًا) ---------- */
+$sqlReport = crm_run_sql_file(__DIR__ . '/sql/database.sql');
+foreach ($sqlReport['failed'] as $f) { err("SQL FAILED: {$f}"); }
+err("SQL: {$sqlReport['ok']} statement(s) executed");
+
+/* ---------- 4) دمج ملفات اللغة (lang/) ---------- */
 /*
  * القواعد:
  *  - الملف مش موجود في usersc/lang → بينقل زي ما هو.
@@ -87,9 +92,9 @@ foreach (glob($langSrcDir . '/*.php') ?: [] as $srcFile) {
     $langResults[] = "{$base}: تمت إضافة " . count($missing) . " مفتاح جديد";
 }
 
-/* ---------- 4) تسجيل ---------- */
+/* ---------- 5) تسجيل ---------- */
 logger($user->data()->id, "USPlugins", "eh_crm Installed");
-err("EH_CRM installed — run sql/ files manually, then Activate.");
+err("EH_CRM installed — activate it, then use Configure (Create Permissions / Create Menu).");
 if (!empty($langResults)) {
     foreach ($langResults as $lr) {
         err("Lang: " . $lr);
@@ -115,7 +120,6 @@ if (!empty($langResults)) {
     <h1>EH CRM — تم التثبيت ✅</h1>
     <p>الخطوات الجاية:</p>
     <ul>
-      <li>شغّل <code>sql/database.sql</code> من phpMyAdmin (الجداول + تسجيل الصفحات).</li>
       <li>فعّل البلجن من <code>Admin → Plugins</code>.</li>
       <li>افتح صفحة الـConfigure: <b>انشاء الصلاحيات</b> ثم <b>انشاء القوائم</b>.</li>
     </ul>
@@ -141,6 +145,18 @@ if (!empty($langResults)) {
     <?php endif; ?>
     <?php if (empty($deployReport['failed'])): ?>
       <p class="ok">كل الصفحات اتنشرت بنجاح.</p>
+    <?php endif; ?>
+  </div>
+
+  <div class="box">
+    <h1>تقرير قاعدة البيانات (sql/database.sql)</h1>
+    <p class="<?= empty($sqlReport['failed']) ? 'ok' : 'bad' ?>">
+      <?= $sqlReport['ok'] ?> جملة اتنفذت بنجاح —
+      <?= count($sqlReport['failed']) ?> فشلت
+      (idempotent: آمن يعدي تاني في أي وقت)
+    </p>
+    <?php if (!empty($sqlReport['failed'])): ?>
+      <ul><?php foreach ($sqlReport['failed'] as $f) { echo '<li class="bad">' . htmlspecialchars($f) . '</li>'; } ?></ul>
     <?php endif; ?>
   </div>
 

@@ -25,11 +25,13 @@ A CRM plugin for UserSpice, built for a real-estate marketing company.
 
 1. Copy the `eh_crm/` folder into `usersc/plugins/`.
 2. Open `usersc/plugins/eh_crm/install.php` in the browser (as the master account).
-   This registers the plugin, deploys the pages to `usersc/`, and merges the language keys.
-3. Run `sql/database.sql` manually via phpMyAdmin.
-   It creates the `plg_ehcrm_*` tables and registers the `eh_*` pages in the UserSpice `pages` table.
-4. Activate the plugin from **Admin → Plugins**.
-5. Open the plugin **Configure** page:
+   This registers the plugin, deploys the pages to `usersc/`, creates the `plg_ehcrm_*`
+   tables, registers the `eh_*` pages in the UserSpice `pages` table, and merges the
+   language keys — everything automatically.
+   (`sql/database.sql` is idempotent — safe to run multiple times, manually via
+   phpMyAdmin too if you prefer.)
+3. Activate the plugin from **Admin → Plugins**.
+4. Open the plugin **Configure** page:
    - Click **Create Permissions** — creates the 4 CRM permissions from `sql/permissions.sql`
      (idempotent: existing permissions are never duplicated), then lists them with a user count.
    - Click **Create Menu** — adds the CRM dropdown menu from `sql/us_menu_items.sql`.

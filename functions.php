@@ -66,5 +66,63 @@ if (!function_exists('crm_load_lang')) {
     }
 }
 
+/* ---- تشغيل ملف SQL — تقسيم statement بstatement (آمن للتكرار) ---- */
+if (!function_exists('crm_run_sql_file')) {
+    /**
+     * يشغّل ملف .sql جملة جملة ويرجّع تقرير: ['ok' => int, 'failed' => []]
+     * الملف المفروض يكون idempotent (CREATE IF NOT EXISTS / INSERT IGNORE / WHERE NOT EXISTS)
+     */
+    function crm_run_sql_file($file)
+    {
+        $db = DB::getInstance();
+        $report = ['ok' => 0, 'failed' => []];
+        if (!is_file($file)) {
+            $report['failed'][] = 'الملف مش موجود: ' . $file;
+            return $report;
+        }
+        $sql = (string)file_get_contents($file);
+
+        // شيل أسطر الكومنتات والسطور الفاضية
+        $lines = [];
+        foreach (explode("\n", $sql) as $l) {
+            $t = ltrim($l);
+            if ($t === '' || strpos($t, '--') === 0) { continue; }
+            $lines[] = $l;
+        }
+
+        // تقسيم على ; مع احترام النصوص المقتبسة
+        $stmts = [];
+        $cur  = '';
+        $inS  = false; // '
+        $inD  = false; // "
+        $prev = '';
+        foreach (str_split(implode("\n", $lines)) as $ch) {
+            $cur .= $ch;
+            if ($ch === "'" && !$inD) {
+                if (!$inS || $prev !== '\\') { $inS = !$inS; }
+            } elseif ($ch === '"' && !$inS) {
+                if (!$inD || $prev !== '\\') { $inD = !$inD; }
+            } elseif ($ch === ';' && !$inS && !$inD) {
+                $stmts[] = $cur;
+                $cur = '';
+            }
+            $prev = $ch;
+        }
+        if (trim($cur) !== '') { $stmts[] = $cur; }
+
+        foreach ($stmts as $stmt) {
+            $stmt = trim($stmt, " \t\r\n;");
+            if ($stmt === '') { continue; }
+            $db->query($stmt);
+            if ($db->error()) {
+                $report['failed'][] = substr($stmt, 0, 70) . '… → ' . $db->errorString();
+            } else {
+                $report['ok']++;
+            }
+        }
+        return $report;
+    }
+}
+
 /* النشر بيتعمل من install / activate / migrate / update صراحةً — مش مع كل تحميل صفحة */
 crm_load_lang();
