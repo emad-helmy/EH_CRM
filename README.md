@@ -117,7 +117,7 @@ eh_crm/
 ├── functions.php         (auto-loaded: loads lang, SQL runner)
 ├── install.php           (registers plugin, deploys pages, runs SQL, merges lang)
 ├── activate.php          (activation + re-deploy)
-├── uninstall.php         (removes pages, menu, lang keys — tables kept)
+├── uninstall.php         (removes pages, menu, pages-table rows, tables, lang keys)
 ├── migrate.php / update.php  (re-deploy pages + re-run SQL, idempotent)
 ├── configure.php         (Create Permissions / Create Menu buttons)
 ├── plugin_info.php / footer.php
@@ -143,8 +143,15 @@ pages and re-runs the (idempotent) SQL.
 
 ## Uninstall
 
-Removes the deployed pages, the CRM menu items, and the language keys it added.
-Database tables are kept — drop them manually if needed.
+Removes everything the install created:
+- the deployed `eh_*` pages from `usersc/`
+- the CRM menu items (dropdown + links)
+- the CRM page rows from the UserSpice `pages` table
+- **all `plg_ehcrm_*` database tables** (⚠️ this deletes all CRM data — leads, calls, batches…)
+- the language keys it added to `usersc/lang/*.php`
+
+The 4 CRM permissions created from the Configure page are **kept** (users may still be
+assigned to them) — remove them manually from **Admin → Permissions** if you want.
 
 ## License
 

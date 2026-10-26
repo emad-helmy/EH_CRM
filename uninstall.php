@@ -1,5 +1,5 @@
 <?php
-/* uninstall.php — يلغي تسجيل البلجن وينظف اللي الـinstall نشره (الجداول تبقى يدويًا) */
+/* uninstall.php — يلغي تسجيل البلجن وينظف كل اللي الـinstall عمله */
 require_once __DIR__ . '/../../../users/init.php';
 
 if (!in_array($user->data()->id, $master_account)) {
@@ -26,7 +26,35 @@ foreach (glob(CRM_PLUGIN_DIR . '/files/*.php') ?: [] as $f) {
     if (is_file($path)) { @unlink($path); }
 }
 
-/* 3) شيل مفاتيح اللغة اللي الـinstall أضافها (بلوك EH_CRM LANG) */
+/* 3) شيل صفوف الصفحات من جدول pages (بأسماء محددة — مش LIKE عشان صفحات بلجنات تانية زي eh_chat متتمسش) */
+$crmPages = [
+    'usersc/eh_dashboard.php', 'usersc/eh_leads.php', 'usersc/eh_lead_view.php',
+    'usersc/eh_lead_import.php', 'usersc/eh_batches.php', 'usersc/eh_distribute.php',
+    'usersc/eh_my_leads.php', 'usersc/eh_my_calls.php', 'usersc/eh_reports.php',
+    'usersc/eh_settings.php', 'usersc/eh_ceo_control.php', 'usersc/eh_no_access.php',
+];
+$ph = implode(',', array_fill(0, count($crmPages), '?'));
+$db->query("DELETE FROM pages WHERE page IN ({$ph})", $crmPages);
+
+/* 4) شيل جداول البلجن (اللي عملها sql/database.sql) */
+$crmTables = [
+    'plg_ehcrm_activity_log',
+    'plg_ehcrm_call_logs',
+    'plg_ehcrm_call_results',
+    'plg_ehcrm_import_batches',
+    'plg_ehcrm_import_staging',
+    'plg_ehcrm_leads',
+    'plg_ehcrm_lead_assignments',
+    'plg_ehcrm_projects',
+    'plg_ehcrm_sales_profile',
+    'plg_ehcrm_settings',
+    'plg_ehcrm_sources',
+];
+foreach ($crmTables as $t) {
+    $db->query("DROP TABLE IF EXISTS `{$t}`");
+}
+
+/* 5) شيل مفاتيح اللغة اللي الـinstall أضافها (بلوك EH_CRM LANG) */
 $langDir = $dst . '/lang/';
 foreach (['en-US.php', 'ar-EG.php'] as $lg) {
     $p = $langDir . $lg;
@@ -40,8 +68,8 @@ foreach (['en-US.php', 'ar-EG.php'] as $lg) {
     }
 }
 
-/* 4) شيل البلجن من us_plugins */
+/* 6) شيل البلجن من us_plugins */
 $db->query("DELETE FROM us_plugins WHERE plugin = 'eh_crm'");
 
-err('CRM uninstalled (tables remain — drop manually if needed)');
+err('CRM uninstalled — tables, pages, menu items and lang keys removed');
 Redirect::to($us_url_root . 'users/admin.php?view=plugins');
