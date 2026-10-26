@@ -116,7 +116,6 @@ git pull origin main
 ```
 
 Then open `update.php` (or `migrate.php`) as the master account to re-deploy the pages.
-`crm_deploy_pages()` also re-copies changed pages automatically on the next page load.
 
 ## Uninstall
 

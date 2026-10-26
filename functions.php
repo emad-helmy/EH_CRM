@@ -6,57 +6,40 @@ if (count(get_included_files()) == 1) die();
 
 define('CRM_PLUGIN_DIR', dirname(__FILE__));
 
-/* ---- نشر صفحات البلجن من files/ إلى usersc/ (نفس أسلوب البلجن الـdemo) ---- */
+/* ---- نشر صفحات البلجن من files/ إلى usersc/ (نفس طريقة eh_chat بالظبط) ---- */
 if (!function_exists('crm_deploy_pages')) {
     /**
-     * بينسخ files/*.php إلى usersc/ ويرجّع تقرير مفصّل:
-     * ['copied' => [], 'skipped' => [], 'failed' => []]
+     * بينسخ صفحات files/ إلى usersc/ ويرجّع تقرير:
+     * ['copied' => [], 'skipped' => [], 'failed' => [], 'missing' => []]
+     * قائمة ثابتة زي eh_chat — لو ملف ناقص من الرفع بيظهر في missing
      */
     function crm_deploy_pages()
     {
-        $report = ['copied' => [], 'skipped' => [], 'failed' => []];
-        $src = str_replace('\\', '/', CRM_PLUGIN_DIR . '/files');
-        $dst = dirname(CRM_PLUGIN_DIR, 2); // .../usersc
+        $report = ['copied' => [], 'skipped' => [], 'failed' => [], 'missing' => []];
+        $src = __DIR__ . '/files';
+        $dst = dirname(__DIR__, 2); // .../usersc
 
-        if (!is_dir($src)) {
-            $report['failed'][] = "مجلد files/ مش موجود: {$src} — اتأكد إن ملفات البلجن اترفعت كاملة";
-            return $report;
-        }
-        if (!is_dir($dst)) {
-            $report['failed'][] = "مجلد usersc مش موجود: {$dst}";
-            return $report;
-        }
-        if (!is_writable($dst)) {
-            $report['failed'][] = "مجلد usersc مش قابل للكتابة ({$dst}) — ظبط الصلاحيات (755) والـownership";
-            return $report;
-        }
+        $pages = [
+            'eh_dashboard.php', 'eh_leads.php', 'eh_lead_view.php', 'eh_lead_import.php',
+            'eh_batches.php', 'eh_distribute.php', 'eh_my_leads.php', 'eh_my_calls.php',
+            'eh_reports.php', 'eh_settings.php', 'eh_ceo_control.php', 'eh_no_access.php',
+        ];
 
-        $files = glob($src . '/*.php');
-        if (!is_array($files) || count($files) === 0) {
-            // fallback لو الـglob فشل
-            $files = [];
-            foreach (scandir($src) ?: [] as $f) {
-                if (substr($f, -4) === '.php') {
-                    $files[] = $src . '/' . $f;
-                }
+        foreach ($pages as $f) {
+            $from = "$src/$f";
+            $to   = "$dst/$f";
+            if (!file_exists($from)) {
+                $report['missing'][] = $f;
+                continue;
             }
-        }
-        if (empty($files)) {
-            $report['failed'][] = "مفيش صفحات PHP في files/";
-            return $report;
-        }
-
-        foreach ($files as $from) {
-            $to = $dst . '/' . basename($from);
-            clearstatcache(true, $to);
             if (file_exists($to) && filemtime($from) <= filemtime($to)) {
-                $report['skipped'][] = basename($from);
+                $report['skipped'][] = $f;
                 continue;
             }
             if (@copy($from, $to)) {
-                $report['copied'][] = basename($from);
+                $report['copied'][] = $f;
             } else {
-                $report['failed'][] = basename($from) . ' → ' . $to . ' (copy فشلت — شوف صلاحيات المجلد)';
+                $report['failed'][] = "{$f} → {$to} (copy فشلت — شوف صلاحيات مجلد usersc)";
             }
         }
         return $report;
@@ -83,5 +66,5 @@ if (!function_exists('crm_load_lang')) {
     }
 }
 
-crm_deploy_pages();
+/* النشر بيتعمل من install / activate / migrate / update صراحةً — مش مع كل تحميل صفحة */
 crm_load_lang();

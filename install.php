@@ -28,6 +28,7 @@ $deployReport = crm_deploy_pages();
 foreach ($deployReport['copied'] as $f)  { err("Deployed: {$f}"); }
 foreach ($deployReport['skipped'] as $f) { err("Deploy skipped (up-to-date): {$f}"); }
 foreach ($deployReport['failed'] as $f)  { err("DEPLOY FAILED: {$f}"); }
+foreach ($deployReport['missing'] as $f) { err("DEPLOY MISSING SOURCE: {$f}"); }
 
 /* ---------- 3) دمج ملفات اللغة (lang/) ---------- */
 /*
@@ -129,6 +130,10 @@ if (!empty($langResults)) {
     <?php if (!empty($deployReport['skipped'])): ?>
       <p class="warn"><b>موجودة ومحدّثة (<?= count($deployReport['skipped']) ?>):</b></p>
       <ul><?php foreach ($deployReport['skipped'] as $f) { echo '<li>' . htmlspecialchars($f) . '</li>'; } ?></ul>
+    <?php endif; ?>
+    <?php if (!empty($deployReport['missing'])): ?>
+      <p class="bad"><b>ناقصة من files/ (<?= count($deployReport['missing']) ?>) — الرفع على السيرفر مش كامل:</b></p>
+      <ul><?php foreach ($deployReport['missing'] as $f) { echo '<li>' . htmlspecialchars($f) . '</li>'; } ?></ul>
     <?php endif; ?>
     <?php if (!empty($deployReport['failed'])): ?>
       <p class="bad"><b>فشل (<?= count($deployReport['failed']) ?>):</b></p>
