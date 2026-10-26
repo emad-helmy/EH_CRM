@@ -22,7 +22,7 @@
 /* عزل أي output جانبي (BOM / مسافات / تحذيرات) عن رد الـJSON */
 ob_start();
 
-require_once __DIR__ . '/lib/crm_boot.php';
+require_once __DIR__ . '/crm_boot.php';
 
 /* لازم مسجّل دخول */
 if (!crm_user_id()) {

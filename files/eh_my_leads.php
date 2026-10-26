@@ -4,8 +4,8 @@ require_once $abs_us_root . $us_url_root . 'users/includes/template/prep.php';
 if (!securePage(Server::get('PHP_SELF'))) {
     die();
 }
-require_once __DIR__ . '/scripts/lib/crm_func.php';
-require_once __DIR__ . '/scripts/lib/crm_calls.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_calls.php';
 
 /* نتائج المكالمات بتتزرع للجافاسكربت (فلتر الموديل + تلوين الشارات) */
 $crmCallResults = array_map(function ($r) {

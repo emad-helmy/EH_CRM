@@ -4,7 +4,7 @@ require_once $abs_us_root . $us_url_root . 'users/includes/template/prep.php';
 if (!securePage(Server::get('PHP_SELF'))) {
     die();
 }
-require_once __DIR__ . '/scripts/lib/crm_func.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
 ?>
 <div class="row">
   <div class="col-md-12">&nbsp;</div>

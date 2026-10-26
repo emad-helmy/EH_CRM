@@ -19,7 +19,7 @@ if (!defined('CRM_BOOT_LOADED')) {
 
     /* users/init.php — المسار: usersc/scripts/lib  →  جذر الموقع */
     if (!class_exists('DB')) {
-        require_once dirname(__DIR__, 3) . '/users/init.php';
+        require_once dirname(__DIR__, 5) . '/users/init.php';
     }
 
     require_once __DIR__ . '/crm_func.php';

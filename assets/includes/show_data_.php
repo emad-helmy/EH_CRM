@@ -22,7 +22,7 @@
 /* عزل أي output جانبي (BOM / مسافات / تحذيرات) عن رد الـJSON */
 ob_start();
 
-require_once __DIR__ . '/lib/crm_boot.php';
+require_once __DIR__ . '/crm_boot.php';
 
 if (!crm_user_id()) {
     crm_json(false, crm_t('CRM_COMMON_LOGIN_FIRST'), null, 401);
@@ -307,7 +307,7 @@ switch ($crm_action) {
     /* ---------------------------------------------------------------- */
     case 'export_xlsx':
         crm_require_roles(['mgr']);
-        require_once __DIR__ . '/lib/SimpleXLSXGen.php';
+        require_once __DIR__ . '/SimpleXLSXGen.php';
 
         $what = crm_get('what');
 

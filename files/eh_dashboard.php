@@ -17,7 +17,7 @@ if (!securePage(Server::get('PHP_SELF'))) {
 }
 
 /* helpers المشروع (فحص البرمشنز/الإعدادات/الشكل الموحّد للردود) */
-require_once __DIR__ . '/scripts/lib/crm_func.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
 
 $crm_uid    = (int) $user->data()->id;
 $crm_has    = crm_has_any_role($crm_uid);       // عنده أي صلاحية من صلاحيات المشروع؟

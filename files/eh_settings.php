@@ -11,8 +11,8 @@ require_once $abs_us_root . $us_url_root . 'users/includes/template/prep.php';
 if (!securePage(Server::get('PHP_SELF'))) {
     die();
 }
-require_once __DIR__ . '/scripts/lib/crm_func.php';
-require_once __DIR__ . '/scripts/lib/crm_admin.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
+require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_admin.php';
 
 $crmResults  = crm_admin_results();
 $crmSources  = crm_admin_sources();
