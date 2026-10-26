@@ -1,8 +1,29 @@
+<div align="center">
+
+<img src="logo.png" width="140" alt="EH CRM logo">
+
 # EH CRM — UserSpice Plugin
 
 A CRM plugin for UserSpice, built for a real-estate marketing company.
 
+![PHP](https://img.shields.io/badge/PHP-8.x-777BB4?logo=php&logoColor=white)
+![UserSpice](https://img.shields.io/badge/UserSpice-6.1.7-4B8BBE)
+![MySQL](https://img.shields.io/badge/MySQL%20%2F%20MariaDB-✓-4479A1?logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+![i18n](https://img.shields.io/badge/UI-Arabic%20%7C%20English-blueviolet)
+
 **Author:** Emad Helmy
+
+</div>
+
+---
+
+## How it works
+
+```
+CSV import (template + review) ──► equal distribution to sales team
+        ──► sales rep calls & logs the result ──► manager monitors / transfers
+```
 
 ## Features
 
@@ -93,13 +114,13 @@ No foreign keys are used (same style as UserSpice core) — integrity is enforce
 eh_crm/
 ├── info.xml              (plugin metadata, author)
 ├── logo.png              (shown in Admin → Plugins)
-├── functions.php         (auto-loaded: deploys pages, loads lang)
-├── install.php           (registers plugin, deploys pages, merges lang)
+├── functions.php         (auto-loaded: loads lang, SQL runner)
+├── install.php           (registers plugin, deploys pages, runs SQL, merges lang)
 ├── activate.php          (activation + re-deploy)
 ├── uninstall.php         (removes pages, menu, lang keys — tables kept)
-├── migrate.php / update.php  (re-deploy pages, idempotent)
+├── migrate.php / update.php  (re-deploy pages + re-run SQL, idempotent)
 ├── configure.php         (Create Permissions / Create Menu buttons)
-├── plugin_info.php / footer.php / functions.php
+├── plugin_info.php / footer.php
 ├── files/                (12 eh_* pages → copied to usersc/ on install)
 ├── assets/
 │   ├── includes/         (crm_* libraries + data_in_.php / show_data_.php AJAX endpoints)
@@ -117,7 +138,8 @@ cd usersc/plugins/eh_crm
 git pull origin main
 ```
 
-Then open `update.php` (or `migrate.php`) as the master account to re-deploy the pages.
+Then open `update.php` (or `migrate.php`) as the master account — it re-deploys the
+pages and re-runs the (idempotent) SQL.
 
 ## Uninstall
 
@@ -128,6 +150,10 @@ Database tables are kept — drop them manually if needed.
 
 MIT
 
-## Author
+---
 
-Emad Helmy
+<div align="center">
+
+**Emad Helmy**
+
+</div>
