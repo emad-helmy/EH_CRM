@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+  <name>EH CRM</name>
+  <author>Emad Helmy</author>
+  <website>https://userspice.com</website>
+  <version>1.0.0</version>
+  <release>October 2026</release>
+  <tested>6.1.7</tested>
+  <description>
+    CRM for a real-estate marketing company:
+    data entry (CSV with template + review before registration) →
+    equal distribution to the sales team →
+    each sales rep calls and logs the result →
+    sales manager monitors and can transfer a batch of leads to another employee.
+    Permissions: 3 = data entry, 4 = sales, 5 = sales manager (2 = admin above).
+  </description>
+  <button>CRM</button>
+</plugin>
