@@ -54,8 +54,8 @@ function crm_call_save(int $leadId, int $userId, string $resultKey, string $note
         crm_err(crm_t('CRM_ERR_LEAD_NOT_FOUND'), null, 404);
     }
 
-    /* الملكية: الموظف يسجل على عملائه بس (الأدمن/المدير فوقهم) */
-    $byPass = crm_is_admin($userId) || crm_is_sales_manager($userId);
+    /* الملكية: الموظف يسجل على عملائه بس (الأدمن/من يشوف كل العملاء فوقهم) */
+    $byPass = crm_is_admin($userId) || crm_can_page('usersc/eh_leads.php', $userId);
     if (!$byPass && (int) $lead->assigned_to !== (int) $userId) {
         crm_err(crm_t('CRM_ERR_LEAD_NOT_ASSIGNED'), null, 403);
     }

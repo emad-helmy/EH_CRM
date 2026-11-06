@@ -15,7 +15,7 @@ if (!securePage(Server::get('PHP_SELF'))) {
 require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
 
 $leadId      = (int) ($_GET['lead'] ?? 0);
-$canTransfer = crm_is_sales_manager();   // النقل لمدير/مشرف/أدمن فقط
+$canTransfer = crm_can_page('usersc/eh_distribute.php');   // النقل لمن يقدر يفتح صفحة التوزيع (برمشن UserSpice)
 ?>
 
 <div class="row">

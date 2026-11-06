@@ -158,7 +158,7 @@ $crmAdminJson = json_encode([
 
                     <!-- ======================== الفريق ======================== -->
                     <div class="tab-pane fade" id="tab-team" role="tabpanel">
-                        <div class="alert alert-info py-2 mb-3">
+                        <div class="alert alert-info py-2 mb-3" style="direction: rtl; text-align: center;">
                             <?= lang('CRM_SET_TEAM_HINT') ?>
                         </div>
                         <div class="table-responsive">
@@ -180,7 +180,7 @@ $crmAdminJson = json_encode([
 
                     <!-- ======================== الإعدادات ======================== -->
                     <div class="tab-pane fade" id="tab-settings" role="tabpanel">
-                        <div class="alert alert-info py-2">
+                        <div class="alert alert-info py-2" style="direction: rtl; text-align: center;">
                             <?= lang('CRM_SET_DIST_STYLE') ?><strong><?= lang('CRM_SET_DIST_STYLE_VALUE') ?></strong><?= lang('CRM_SET_DIST_FIXED') ?>
                         </div>
                         <form id="settingsForm" class="row g-3" onsubmit="return false">
@@ -216,7 +216,7 @@ $crmAdminJson = json_encode([
                                 </button>
                             </div>
                         </form>
-                        <div class="alert alert-info py-2 mt-3 mb-0">
+                        <div class="alert alert-info py-2 mt-3 mb-0" style="direction: rtl; text-align: center;">
                             <i class="fas fa-recycle"></i>
                             <?= lang('CRM_SET_RECYCLE_HINT') ?>
                         </div>

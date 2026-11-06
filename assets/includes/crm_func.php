@@ -42,6 +42,10 @@ function crm_count($sql, $params = [])
 /**
  * خريطة أرقام البرمشنز من الداتابيز (مخفية في static للسرعة).
  * ترجّع: ['entry'=>id, 'sales'=>id, 'mgr'=>id]  و 0 لو البرمشن مش موجود.
+ *
+ * ملحوظة: الخريطة دي **مش بتحدد الصلاحيات** — فتح الصفحات والأفعال كله
+ * من UserSpice (pages + permission_page_matches). بنستخدمها بس عشان
+ * نعرف "فريق المبيعات" (مين هيتوزع عليه العملاء) من برمشن CRM Sales.
  */
 function crm_perm_map()
 {
@@ -109,30 +113,6 @@ function crm_page_perm_ids()
 }
 
 /**
- * أرقام البرمشنز اللي بتُعتبر "مستوى مدير" (بتشوف كل العملاء مش عملائها بس).
- *   = برمشن مدير المبيعات (بالاسم)  +  أي أرقام في الإعداد manager_perm_ids
- * مثال: لو عايز "مشرف المبيعات" يشوف كل حاجة زي المدير، حط رقم برمشنه
- *       في manager_perm_ids  (مثلًا '6' أو '6,7').
- */
-function crm_mgr_perm_ids()
-{
-    static $ids = null;
-    if ($ids === null) {
-        $ids = [];
-        $mgr = crm_perm_id('mgr');
-        if ($mgr > 0) {
-            $ids[] = $mgr;
-        }
-        $extra = (string) crm_setting('manager_perm_ids', '');
-        foreach (preg_split('/[^0-9]+/', $extra, -1, PREG_SPLIT_NO_EMPTY) as $n) {
-            $ids[] = (int) $n;
-        }
-        $ids = array_values(array_unique(array_filter($ids)));
-    }
-    return $ids;
-}
-
-/**
  * فحص برمشن.
  *   $userId = null → اليوزر الحالي من الجلسة (الوضع العادي).
  *   $userId = رقم  → بنفحص بالرقم ده صريح (مهم وقت تسجيل الدخول لأن
@@ -150,35 +130,6 @@ function crm_has_perm($pid, $userId = null)
 function crm_is_admin($userId = null)
 {
     return crm_has_perm(CRM_ADMIN_PERM, $userId);
-}
-
-/** هل اليوزر عنده برمشن CRM معين؟ (entry | sales | mgr) */
-function crm_is_role($key, $userId = null)
-{
-    if ($key === 'mgr') {   // مدير المبيعات + أي برمشن في "مجموعة المدير"
-        foreach (crm_mgr_perm_ids() as $pid) {
-            if (crm_has_perm($pid, $userId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    return crm_has_perm(crm_perm_id($key), $userId);
-}
-
-function crm_is_entry($userId = null)
-{
-    return crm_is_admin($userId) || crm_is_role('entry', $userId);
-}
-
-function crm_is_sales($userId = null)
-{
-    return crm_is_admin($userId) || crm_is_role('sales', $userId);
-}
-
-function crm_is_sales_manager($userId = null)
-{
-    return crm_is_admin($userId) || crm_is_role('mgr', $userId);
 }
 
 /**
@@ -233,35 +184,50 @@ function crm_can_page($pagePath, $userId = null)
     return $cache[$key] = ($userId === null ? hasPerm($ids) : hasPerm($ids, (int) $userId));
 }
 
-/** أدوار اليوزر الحالي كمصفوفة (بتتبعت للـJS) */
-function crm_user_roles()
+/**
+ * هل اليوزر يعتبر "مستوى مدير" (يشوف بيانات الكل، مش بياناته بس)؟
+ * القرار من UserSpice بالظبط: بيبقى مدير لو يقدر يفتح أي صفحة من صفحات
+ * الإدارة (كل العملاء / التوزيع / التقارير / الإعدادات) — يعني برمشن
+ * مربوط بيها في permission_page_matches. مفيش اسم برمشن ثابت في الكود.
+ */
+function crm_is_manager_view($userId = null)
 {
-    return [
-        'admin' => crm_is_admin(),
-        'entry' => crm_is_role('entry'),
-        'sales' => crm_is_role('sales'),
-        'mgr'   => crm_is_role('mgr'),
-    ];
+    foreach ([
+        'usersc/eh_leads.php',
+        'usersc/eh_distribute.php',
+        'usersc/eh_reports.php',
+        'usersc/eh_settings.php',
+    ] as $pg) {
+        if (crm_can_page($pg, $userId)) {
+            return true;
+        }
+    }
+    return false;
 }
 
-/** بوابة الأندبوينتس: لو مش من الأدوار المطلوبة يرجّع JSON ويموت */
-function crm_require_roles(array $keys, $adminAllowed = true)
+/**
+ * بوابة الأندبوينتس: الصلاحية من UserSpice وبس.
+ * الـaction بيبوّض ببرمشن **الصفحات** اللي بتستخدمه — نفس مصدر securePage
+ * بالظبط (pages + permission_page_matches). يعني لو الأدمن ربط أي برمشن
+ * بالصفحة من لوحة التحكم، صاحب البرمشن يقدر يستخدم أفعال الصفحة دي فورًا
+ * — ومفيش أي قائمة أدوار ثابتة في الكود. وميزة إضافية: اليوزر اللي معاه
+ * أكتر من برمشن بيمر عادي (hasPerm بيكفي بأي واحد منهم).
+ *   $pagePaths = صفحة أو أكتر، يكفي إنه يقدر يفتح واحدة منهم
+ */
+function crm_require_pages(array $pagePaths)
 {
     if (!crm_user_id()) {
         crm_json(false, crm_t('CRM_COMMON_LOGIN_FIRST'), null, 401);
     }
-    if ($adminAllowed && crm_is_admin()) {
-        return true;
-    }
-    foreach ($keys as $k) {
-        if (crm_is_role($k)) {
+    foreach ($pagePaths as $pg) {
+        if (crm_can_page($pg)) {
             return true;
         }
     }
     crm_json(false, crm_t('CRM_COMMON_NO_PERM'), null, 403);
 }
 
-/** بوابة الأندبوينتس: أي دور CRM يكفي */
+/** بوابة الأندبوينتس: أي صلاحية مربوطة بأي صفحة من صفحات المشروع تكفي */
 function crm_require_any_crm_role()
 {
     if (!crm_user_id()) {
@@ -604,7 +570,6 @@ function crm_js_config()
         'token'    => Token::generate(),
         'userId'   => crm_user_id(),
         'userName' => crm_user_name(),
-        'roles'    => crm_user_roles(),
         'urls'     => [
             'in'   => $us_url_root . 'usersc/plugins/eh_crm/assets/includes/data_in_.php',
             'show' => $us_url_root . 'usersc/plugins/eh_crm/assets/includes/show_data_.php',

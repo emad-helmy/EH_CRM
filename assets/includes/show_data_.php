@@ -36,7 +36,7 @@ switch ($crm_action) {
     /* ---------------------------------------------------------------- */
     case 'ping':
         crm_require_any_crm_role();
-        crm_ok('pong', ['time' => crm_now(), 'userId' => $crm_uid, 'roles' => crm_user_roles()]);
+        crm_ok('pong', ['time' => crm_now(), 'userId' => $crm_uid]);
         break;
 
     /* ---------------------------------------------------------------- */
@@ -48,15 +48,18 @@ switch ($crm_action) {
 
         $scope  = '';
         $params = [];
-        if (!crm_is_sales_manager()) {
-            if (crm_is_role('sales')) {
+        if (!crm_is_manager_view()) {
+            if (crm_can_page('usersc/eh_my_leads.php')) {
                 // مسئول المبيعات: عملائه اللي اتوزّعوا عليه بس
                 $scope    = ' AND assigned_to = ? ';
                 $params[] = $crm_uid;
-            } elseif (crm_is_role('entry')) {
+            } elseif (crm_can_page('usersc/eh_lead_import.php')) {
                 // مدخل البيانات: الأرقام اللي هو دخّلها بس
                 $scope    = ' AND created_by = ? ';
                 $params[] = $crm_uid;
+            } else {
+                // مفيش صلاحية بيانات خالص — من غير النطاق ده المفروض ميدخلش هنا أصلًا
+                $scope = ' AND 1 = 0 ';
             }
         }
 
@@ -93,7 +96,7 @@ switch ($crm_action) {
     /* حمل كل موظفي المبيعات (للتوزيع والمتابعة)                          */
     /* ---------------------------------------------------------------- */
     case 'sales_load':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_distribute.php', 'usersc/eh_dashboard.php', 'usersc/eh_leads.php', 'usersc/eh_lead_view.php']);
 
         $rows = crm_db()->query(
             "SELECT u.id, u.username, u.fname, u.lname, u.email,
@@ -199,7 +202,7 @@ switch ($crm_action) {
         break;
 
     case 'staging_list':
-        crm_require_roles(['entry']);
+        crm_require_pages(['usersc/eh_lead_import.php', 'usersc/eh_batches.php']);
         $batchId = crm_get_int('batch_id');
         if ($batchId <= 0) {
             crm_err(crm_t('CRM_ERR_BAD_BATCH'), null, 400);
@@ -208,7 +211,7 @@ switch ($crm_action) {
         break;
 
     case 'batches_list':
-        crm_require_roles(['entry']);
+        crm_require_pages(['usersc/eh_batches.php']);
         crm_ok('', crm_csv_get_batches(crm_user_id()));
         break;
 
@@ -216,12 +219,12 @@ switch ($crm_action) {
     /* الخطوة 4: التوزيع / النقل                                         */
     /* ---------------------------------------------------------------- */
     case 'unassigned_list':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_distribute.php']);
         crm_ok('', crm_dist_unassigned());
         break;
 
     case 'assigned_list':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_distribute.php']);
         crm_ok('', crm_dist_assigned(crm_get_int('user_id')));
         break;
 
@@ -229,19 +232,19 @@ switch ($crm_action) {
     /* الخطوة 5: لوحة المبيعات + سجل مكالماتي                            */
     /* ---------------------------------------------------------------- */
     case 'my_stats':
-        crm_require_roles(['sales']);
+        crm_require_pages(['usersc/eh_my_leads.php']);
         crm_ok('', crm_my_stats($crm_uid));
         break;
 
     case 'my_leads_list':
-        crm_require_roles(['sales']);
+        crm_require_pages(['usersc/eh_my_leads.php']);
         /* include=1,2,3 → عملاء متسجّلة عليهم مكالمة لسه — يفضلوا ظاهرين حتى لو خرجوا من فلتر التاب */
         $inc = array_filter(array_map('intval', explode(',', (string) crm_get('include'))));
         crm_ok('', crm_my_leads($crm_uid, crm_get('tab'), crm_get('q'), $inc));
         break;
 
     case 'my_calls_list':
-        crm_require_roles(['sales']);
+        crm_require_pages(['usersc/eh_my_calls.php']);
         crm_ok('', crm_my_calls($crm_uid));
         break;
 
@@ -249,7 +252,7 @@ switch ($crm_action) {
     /* الخطوة 6: كل العملاء (مدير) + كارت العميل                          */
     /* ---------------------------------------------------------------- */
     case 'all_leads_list':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_leads.php']);
         crm_ok('', crm_all_leads([
             'status'      => crm_get('status'),
             'source_id'   => crm_get_int('source_id'),
@@ -262,39 +265,39 @@ switch ($crm_action) {
         break;
 
     case 'lead_card':
-        crm_require_roles(['sales', 'mgr']);
+        crm_require_pages(['usersc/eh_lead_view.php']);
         $leadCardId = crm_get_int('id');
         if ($leadCardId <= 0) {
             crm_err(crm_t('CRM_ERR_BAD_LEAD'), null, 400);
         }
-        crm_ok('', crm_lead_card($leadCardId, $crm_uid, crm_is_sales_manager()));
+        crm_ok('', crm_lead_card($leadCardId, $crm_uid, crm_is_manager_view()));
         break;
 
     /* ---------------------------------------------------------------- */
     /* الخطوة 7: التقارير + إعدادات الفريق                               */
     /* ---------------------------------------------------------------- */
     case 'stats_by_user':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_reports.php']);
         crm_ok('', crm_report_by_user(crm_get('from'), crm_get('to')));
         break;
 
     case 'stats_by_source':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_reports.php']);
         crm_ok('', crm_report_by_source(crm_get('from'), crm_get('to')));
         break;
 
     case 'stats_by_result':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_reports.php']);
         crm_ok('', crm_report_by_result(crm_get('from'), crm_get('to')));
         break;
 
     case 'sales_profiles':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_settings.php']);
         crm_ok('', crm_admin_team());
         break;
 
     case 'recycle_list':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_distribute.php']);
         crm_ok('', crm_recycle_preview());
         break;
 
@@ -306,7 +309,7 @@ switch ($crm_action) {
     /*   what=by_result  → تقرير الفترة حسب النتيجة                     */
     /* ---------------------------------------------------------------- */
     case 'export_xlsx':
-        crm_require_roles(['mgr']);
+        crm_require_pages(['usersc/eh_reports.php', 'usersc/eh_leads.php']);
         require_once __DIR__ . '/SimpleXLSXGen.php';
 
         $what = crm_get('what');

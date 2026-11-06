@@ -79,17 +79,29 @@ CSV import (template + review) ──► equal distribution to sales team
 
 ## Permissions
 
-The plugin uses 4 named permissions (created from the Configure page, or pre-existing):
+**Access control comes from UserSpice only** — pages + `permission_page_matches` +
+`securePage()`. There is no role list hardcoded in the plugin. This means:
 
-| Permission | Role |
+- A page is openable exactly when its UserSpice permission allows it (same rule as
+  any UserSpice page). Link **any** permission to **any** CRM page from
+  **Admin → Permissions** and it works — no code changes.
+- Users with **multiple** permissions are fine: every check is "any of" (OR), never a
+  single role.
+- Every AJAX action is gated by the permission of the **page(s) that use it** — so a
+  user who can open a page can always use that page's actions.
+
+The 4 named permissions (created from the Configure page) are just convenient bundles
+for the classic setup:
+
+| Permission | Typical use |
 |---|---|
-| CRM Data Entry | Data entry operator |
-| CRM Sales | Sales rep |
-| CRM Sales Manager | Sales manager (sees all, distributes, transfers) |
+| CRM Data Entry | Data entry operator (import pages) |
+| CRM Sales | Sales rep (my leads / my calls) — also defines the sales team for distribution |
+| CRM Sales Manager | Sales manager (all leads, distribute, reports, settings) |
 | CRM Supervisor | Supervisor (manages users via CEO Control) |
 
-Permission IDs are resolved by **name**, so they work regardless of the actual ID numbers
-in your UserSpice install.
+Permission IDs are resolved by **name** (for the sales-team lookup only), so they work
+regardless of the actual ID numbers in your UserSpice install.
 
 ## Database tables (prefix: `plg_ehcrm_`)
 

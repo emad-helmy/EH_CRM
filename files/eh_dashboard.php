@@ -21,7 +21,7 @@ require_once __DIR__ . '/plugins/eh_crm/assets/includes/crm_func.php';
 
 $crm_uid    = (int) $user->data()->id;
 $crm_has    = crm_has_any_role($crm_uid);       // عنده أي صلاحية من صلاحيات المشروع؟
-$crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف الكل)؟
+$crm_is_mgr = crm_is_manager_view($crm_uid);    // مستوى مدير (يشوف الكل)؟ — من صفحات UserSpice
 ?>
 
 <div class="row">
@@ -145,24 +145,25 @@ $crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف
                 <div class="card-body d-grid gap-2">
                     <?php
                     // كل لينك بيظهر بس لو الصلاحية بتسمح بفتح الصفحة (نفس منطق securePage)
+                    // آخر عنصر: true = زرار بيفتح موديل من نفس الصفحة (مش لينك)
                     $crm_quick = [
-                        ['usersc/eh_lead_import.php', 'fas fa-file-csv',      lang('CRM_NAV_IMPORT'), 'btn-outline-primary'],
-                        ['usersc/lead_add.php',    'fas fa-user-plus',     lang('CRM_NAV_ADD'),        'btn-outline-primary'],
-                        ['usersc/batches.php',     'fas fa-layer-group',  lang('CRM_NAV_BATCHES'),     'btn-outline-primary'],
-                        ['usersc/eh_my_leads.php',    'fas fa-phone-volume', lang('CRM_NAV_MY_LEADS'),            'btn-outline-success'],
-                        ['usersc/eh_my_calls.php',    'fas fa-clipboard-list',lang('CRM_NAV_MY_CALLS'),      'btn-outline-success'],
-                        ['usersc/eh_leads.php',       'fas fa-users',        lang('CRM_LEADS_TITLE'),        'btn-outline-primary'],
-                        ['usersc/eh_distribute.php',  'fas fa-shuffle',      lang('CRM_NAV_DISTRIBUTE'),   'btn-outline-primary'],
-                        ['usersc/eh_reports.php',     'fas fa-chart-line',   lang('CRM_NAV_REPORTS'),          'btn-outline-primary'],
-                        ['usersc/eh_settings.php',    'fas fa-sliders',      lang('CRM_NAV_SETTINGS'),       'btn-outline-secondary'],
+                        ['usersc/eh_lead_import.php', 'fas fa-file-csv',      lang('CRM_NAV_IMPORT'),  'btn-outline-primary', false],
+                        ['usersc/eh_lead_import.php', 'fas fa-user-plus',     lang('CRM_NAV_ADD'),     'btn-outline-primary', true],
+                        ['usersc/eh_batches.php',     'fas fa-layer-group',   lang('CRM_NAV_BATCHES'), 'btn-outline-primary', false],
+                        ['usersc/eh_my_leads.php',    'fas fa-phone-volume',  lang('CRM_NAV_MY_LEADS'),'btn-outline-success', false],
+                        ['usersc/eh_my_calls.php',    'fas fa-clipboard-list',lang('CRM_NAV_MY_CALLS'), 'btn-outline-success', false],
+                        ['usersc/eh_leads.php',       'fas fa-users',         lang('CRM_LEADS_TITLE'), 'btn-outline-primary', false],
+                        ['usersc/eh_distribute.php',  'fas fa-shuffle',       lang('CRM_NAV_DISTRIBUTE'), 'btn-outline-primary', false],
+                        ['usersc/eh_reports.php',     'fas fa-chart-line',    lang('CRM_NAV_REPORTS'), 'btn-outline-primary', false],
+                        ['usersc/eh_settings.php',    'fas fa-sliders',       lang('CRM_NAV_SETTINGS'), 'btn-outline-secondary', false],
                     ];
                     $crm_shown = 0;
-                    foreach ($crm_quick as [$crm_pg, $crm_ic, $crm_lb, $crm_cl]) {
+                    foreach ($crm_quick as [$crm_pg, $crm_ic, $crm_lb, $crm_cl, $crm_modal]) {
                         if (!crm_can_page($crm_pg)) {
                             continue;
                         }
                         $crm_shown++;
-                        if ($crm_pg === 'usersc/lead_add.php') {
+                        if ($crm_modal) {
                             // الإضافة بقت موديل من نفس الرئيسية
                             ?>
                             <button type="button" class="btn <?= $crm_cl ?>" data-bs-toggle="modal" data-bs-target="#mdlAddLead">
@@ -188,7 +189,7 @@ $crm_is_mgr = crm_is_sales_manager($crm_uid);   // مستوى مدير (يشوف
         </div>
     </div>
 
-    <?php if (crm_can_page('usersc/lead_add.php')) { ?>
+    <?php if (crm_can_page('usersc/eh_lead_import.php')) { ?>
     <!-- ===================== موديل إضافة عميل (من الرئيسية) ===================== -->
     <div class="modal fade" id="mdlAddLead" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

@@ -222,8 +222,7 @@ INSERT IGNORE INTO `plg_ehcrm_settings` (`id`, `skey`, `svalue`, `updated_at`) V
 (5, 'recycle_statuses', 'no_answer,busy,number_off', '2026-10-22 11:51:56'),
 (6, 'last_assigned_user', '0', '2026-10-16 08:15:52'),
 (7, 'default_followup_hours', '24', '2026-10-22 11:51:56'),
-(8, 'crm_company_name', 'boudy-elhegaz', '2026-10-22 11:51:56'),
-(16, 'manager_perm_ids', '6', '2026-10-16 19:27:19');
+(8, 'crm_company_name', 'boudy-elhegaz', '2026-10-22 11:51:56');
 
 INSERT IGNORE INTO `plg_ehcrm_sources` (`id`, `name`, `color`, `active`, `sort_order`, `created_at`) VALUES
 (1, 'فيسبوك', 'primary', 1, 10, '2026-10-16 08:15:52'),
